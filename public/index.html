@@ -1,0 +1,86 @@
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Water Quality</title>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+		<link rel="stylesheet" href="stylesheets/leaflet.css"/>
+		<link rel="stylesheet" href="stylesheets/leaflet-sidebar.css"/>
+		<link rel="stylesheet" href="stylesheets/style.css">
+	</head>
+
+	<body>
+		<header id="headerdiv"> 
+			<img class="logo" src="images/logo-water.jpg" alt="logo"></img>
+			<h2 class="h2class">Water Quality Management</h2>
+			<nav>
+				<ul class="nav__links">
+					<li><a href="#">Home</a></li>
+					<li><a href="#">Resources</a></li>
+					<li><a href="#">Contact</a></li>
+				</ul>
+			</nav>
+			<a class="cta" href="#"><button>Sign In</button></a>
+		</header>
+		<span class="line"></span>
+		
+		<div id="sidebar" class="leaflet-sidebar collapsed">
+
+			<!-- nav tabs -->
+			<div class="leaflet-sidebar-tabs">
+				<!-- top aligned tabs -->
+				<ul role="tablist">
+						<li><a href="#home" role="tab"><i class="fab fa-buffer"></i></a></li>
+						<!--li><a href="#autopan" role="tab"><i class="fa fa-arrows"></i></a></li-->
+				</ul>
+
+				<!-- bottom aligned tabs -->
+				<ul role="tablist">
+						<li><a><i class="fas fa-cogs"></i></a></li>
+				</ul>
+			</div>
+
+			<!-- panel content -->
+			<div class="leaflet-sidebar-content">
+				<div class="leaflet-sidebar-pane" id="home">
+					<h1 class="leaflet-sidebar-header">
+						Quality Parameters 
+						<span class="leaflet-sidebar-close"><i class="fas fa-angle-left"></i></span>
+					</h1><br/>
+					<!--h3>TSS and DOC Detection</h3><br><hr><br-->
+					
+					<!-- Accordion STUFF Start-->
+					<div class="accordion">
+						<div>
+							<input type="radio" name="example_accordion" id="tss_section" class="accordion__input" onclick="addTss()">
+							<label for="tss_section" class="accordion__label">Total Suspended Solids (TSS) </label>
+							<div class="accordion__content">
+								<p>Total Suspended Solids</p><br>
+								<p>
+									Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam sit reiciendis, ipsam quaerat,
+									aperiam perspiciatis ad ullam architecto impedit natus illo nostrum molestias voluptas earum a
+									voluptatibus fugiat fuga facere!
+								</p>
+							</div>
+						</div>
+						<div>
+							<input type="radio" name="example_accordion" id="doc_section" class="accordion__input" onclick="addDoc()">
+							<label for="doc_section" class="accordion__label">Dissolved Organic Carbon (DOC) 	</label>
+							<div class="accordion__content">
+								<p>Dissolved Organic Carbon</p><br>
+								<p>
+									Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam sit reiciendis, ipsam quaerat,
+									aperiam perspiciatis ad ullam architecto impedit natus illo nostrum molestias voluptas earum a
+									voluptatibus fugiat fuga facere!
+								</p>
+							</div>
+						</div>
+					</div> <!-- Accordion STUFF End-->
+
+				</div>
+			</div>
+		</div>
+		<div id="map"></div>
+		<script src="javascripts/webmap.js" charset="utf-8"></script>
+	</body>
+</html>

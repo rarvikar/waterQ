@@ -1,0 +1,22 @@
+{
+  "name": "waterq",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "build": "browserify webmap.js -o public/javascripts/webmap.js & cp node_modules/leaflet/dist/leaflet.css public/stylesheets/"
+  },
+  "dependencies": {
+    "chroma-js": "^2.1.1",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "geoblaze": "^0.3.2",
+    "georaster": "^1.5.4",
+    "georaster-layer-for-leaflet": "^1.0.2",
+    "leaflet": "^1.7.1",
+    "leaflet-sidebar-v2": "^3.2.3",
+    "morgan": "~1.9.1",
+    "proj4": "^2.7.2"
+  }
+}
