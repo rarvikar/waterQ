@@ -21,16 +21,17 @@ body {
 }
 
 .info { 
-  width:250px;
-	height: 240px;
+  width: 220px;
+	height: 250px;
   padding: 6px 8px; 
   font: 14px/16px "Montserrat", Arial, Helvetica, sans-serif;
   color: #24252A;
   /* background: white;  */
   /* background: rgba(255,255,255,0.8);  */
   background: rgba(236,240,241,0.85);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2); 
-  /* border-radius: 5px; */
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border:2px black solid;
+  border-radius: 5px;
 }
 
 .info h2 { 
@@ -98,7 +99,7 @@ button {
   margin-left: 20px;
   padding: 9px 25px;
   background-color: rgba(0,136,169,1);
-  border: none;
+  border:2px black solid;
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease 0s;
@@ -113,6 +114,7 @@ button:hover {
 .accordion {
   max-width: 400px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border:2px black solid;
   border-radius: 5px;
   overflow: hidden;
   font-family: "Montserrat", sans-serif;

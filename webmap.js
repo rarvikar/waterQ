@@ -5,15 +5,28 @@ const parseGeoraster = require("georaster");
 const GeoRasterLayer = require("georaster-layer-for-leaflet");
 const chroma = require("chroma-js");
 const geoblaze = require("geoblaze");
+const { names } = require("debug");
 
 // Array for Date Select Menu
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 var tss_select_div = document.getElementById("tss_date_select");
 var doc_select_div = document.getElementById("doc_date_select");
 
+// Array for Color Scale select menu
+const color_scales = ["Accent", "BrBG", "Greys", "Pastel1", "Pastel2", "PiYG", "Dark2", "RdYlBu", "RdYlGn", "Spectral", "Set1", "Set2", "Set3", "YlGnBu", "Viridis", "Paired", "PuBuGn", "YlOrRd"];
+console.log(color_scales);
+
+var tss_color_div = document.getElementById("tss_color_select");
+var doc_color_div = document.getElementById("doc_color_select");
+
+
 // Populate month-select menus
 add_month_values(months, tss_select_div);
 add_month_values(months, doc_select_div);
+
+// Populate color-scale select menus
+add_color_values(color_scales, tss_color_div);
+add_color_values(color_scales, doc_color_div);
 
 // A function to populate month-select menus from 
 function add_month_values(months, div_id) {
@@ -23,6 +36,16 @@ function add_month_values(months, div_id) {
 		el.textContent = opt;
 		el.value = opt;
 		div_id.appendChild(el);
+	}
+}
+
+function add_color_values(color_scales, clr_div_id) {
+	for(cs=0; cs < color_scales.length; cs++) {
+		var opts = color_scales[cs];
+		var els = document.createElement("option");
+		els.textContent = opts;
+		els.value = opts;
+		clr_div_id.appendChild(els);
 	}
 }
 
@@ -115,6 +138,7 @@ setTimeout(() => {  layerGroup.addLayer(layerArray[0]);
 // Fetch the raster file across the network and print it to the console. The simplest use of fetch() takes one argument — the path to the resource you want to fetch — and returns a Promise containing the response (a HTTP Response object).
 function fetchLayers(urls) {
 	console.log("Starting Layer fetch");
+	//console.log(chroma.brewer);
 	for(var i=0; i < urls.length; i++) 
 	{
 		fetch(urls[i])
@@ -123,13 +147,13 @@ function fetchLayers(urls) {
 			parseGeoraster(arrayBuffer).then(georaster => {
 				//console.log("georaster:", georaster);
 				tiffArray.push(georaster);
-				console.log("Added a tiff to tiffArray." + "Total layers in tiffArray = " + tiffArray.length);
+				console.log("Added georaster to tiffArray." + "Total = " + tiffArray.length);
 				const min = georaster.mins[0];
 				const max = georaster.maxs[0];
 				const range = georaster.ranges[0];
 
 				// console.log(chroma.brewer);
-				const scale = chroma.scale("viridis").mode("lab");
+				const scale = chroma.scale("accent").mode("lab");
 
 				const layer = new GeoRasterLayer({
 						georaster: georaster,
@@ -152,17 +176,21 @@ function fetchLayers(urls) {
 				//console.log("layer:", layer);
 				//layer.addTo(map);
 				layerArray.push(layer);
-				console.log("Added a layer to array." + "Total layers in array = " + layerArray.length);							
+				console.log("Added a Georaster Layer to Array." + "Total layers = " + layerArray.length);							
 			});
 		});
 	}
 }
 
-// Handle onchange events for month 
-tss_select_div.onchange = function() {addTssLayer(this.value)};
-doc_select_div.onchange = function() {addDocLayer(this.value)};
+// Handle onchange events for month select menu
+tss_select_div.onchange = function() {addTssLayerOnDate(this.value)};
+doc_select_div.onchange = function() {addDocLayerOnDate(this.value)};
 
-function addTssLayer(v) {
+// Handle onchange events for Color-Scale select menu
+tss_color_div.onchange = function() {changeColor(this.value)};
+doc_color_div.onchange = function() {changeColor(this.value)};
+
+function addTssLayerOnDate(v) {
 	switch(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
@@ -185,7 +213,7 @@ function addTssLayer(v) {
 	}
 }
 
-function addDocLayer(v) {
+function addDocLayerOnDate(v) {
 	switch(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
@@ -208,6 +236,46 @@ function addDocLayer(v) {
 	}
 }
 
+function changeColor(v) {
+	var currentTiff = getCurrentLayer();
+	const min = currentTiff.mins[0];
+	const max = currentTiff.maxs[0];
+	const range = currentTiff.ranges[0];
+
+	const scale = chroma.scale(v).mode("lab");
+
+	const layer = new GeoRasterLayer({
+		georaster: currentTiff,
+		opacity: 0.9,
+		pixelValuesToColorFn: function(pixelValues) {
+			const pixelValue = pixelValues[0]; // there's just one band in this raster
+			// if there's zero value, don't return a color
+			if (pixelValue === 0) return null;
+			// scale to 0 - 1 used by chroma
+			const scaledPixelValue = (pixelValue - min) / range;
+			const color = scale(scaledPixelValue).hex();
+			return color;
+		},  
+		resolution: 256 // optional parameter for adjusting display resolution
+	});
+	
+	layerGroup.clearLayers();
+
+	if (active_layer === "Total Suspended Solids" & active_month === "January") {
+		layerArray.splice(0,1,layer);
+		layerGroup.addLayer(layerArray[0]);
+	} else if (active_layer === "Total Suspended Solids" & active_month === "February") {
+			layerArray.splice(1,1,layer);
+			layerGroup.addLayer(layerArray[1]);
+	} else if (active_layer === "Dissolved Organic Carbon" & active_month === "January") {
+			layerArray.splice(2,1,layer);
+			layerGroup.addLayer(layerArray[2]);
+	} else {
+			layerArray.splice(3,1,layer);
+			layerGroup.addLayer(layerArray[3]);
+	}
+}
+
 // Get no. of layers in map
 // let l = 0;
 // map.eachLayer(function(){ l += 1; });
@@ -215,7 +283,7 @@ function addDocLayer(v) {
 
 
 // A function that checks the current layer in the L.LayerGroup and returns the corresponding TIFF
-function getcurrentLayer() {
+function getCurrentLayer() {
 	var curr_lg_array = layerGroup.getLayers();
 	// Since the only element loaded in LayerGroup is the current layer, 
 	// get it from the Array as Array[0] that was returned by getLayers(). 
@@ -257,7 +325,7 @@ function float2int (value) {
 map.on('click', function(evt) {
 	const latlng = map.mouseEventToLatLng(evt.originalEvent);
 	console.log(latlng);
-	var loadedTiff = getcurrentLayer();
+	var loadedTiff = getCurrentLayer();
 	info.update(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
 	console.log(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
 });		
@@ -275,7 +343,7 @@ info.onAdd = function (map) {
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
 	console.log("Running INFO DIV update", props);
-	this._div.innerHTML = '<br><h2>Summary</h2><br>' + '<hr>' + '<br>' + '<h3>Current Parameter :</h3>' + active_layer + '<br>' + '<br><h3>Month :</h3>' + active_month + '<br>' + (props ? '<br>' + '<h3>Value :</h3>' + '<ins>' + props + ' mg/L' + '</ins>' + '<br />' : '<br><strong><i>Click on a point to display value</i></strong>');
+	this._div.innerHTML = '<br><h2>SUMMARY</h2><br>' + '<hr>' + '<br>' + '<h3>Selected Parameter :</h3>' + active_layer + '<br>' + '<br><h3>Month :</h3>' + active_month + '<br>' + (props ? '<br>' + '<hr>' + '<br>' + '<h3>Value :</h3>' + '<ins>' + props + ' mg/L' + '</ins>' : '<br><p style="color: rgba(0,136,169,1)"><b><i>Click on a point to display value</b></i></p>');
 };
 
 // Add the Info Control to Map
