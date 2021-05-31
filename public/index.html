@@ -44,7 +44,7 @@
 			<div class="leaflet-sidebar-content">
 				<div class="leaflet-sidebar-pane" id="home">
 					<h1 class="leaflet-sidebar-header">
-						Quality Parameters 
+						Select a Parameter 
 						<span class="leaflet-sidebar-close"><i class="fas fa-angle-left"></i></span>
 					</h1><br/>
 					<!--h3>TSS and DOC Detection</h3><br><hr><br-->
@@ -52,27 +52,22 @@
 					<!-- Accordion STUFF Start-->
 					<div class="accordion">
 						<div>
-							<input type="radio" name="example_accordion" id="tss_section" class="accordion__input" onclick="addTss()">
+							<input type="radio" name="example_accordion" id="tss_section" class="accordion__input" checked="checked">
 							<label for="tss_section" class="accordion__label">Total Suspended Solids (TSS) </label>
 							<div class="accordion__content">
-								<p>Total Suspended Solids</p><br>
-								<p>
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam sit reiciendis, ipsam quaerat,
-									aperiam perspiciatis ad ullam architecto impedit natus illo nostrum molestias voluptas earum a
-									voluptatibus fugiat fuga facere!
-								</p>
+								<h3>Please select a date - </h3><br>
+								<select id="tss_date_select" onfocus='this.size=8;' onblur='this.size=1;'></select>
 							</div>
 						</div>
 						<div>
-							<input type="radio" name="example_accordion" id="doc_section" class="accordion__input" onclick="addDoc()">
+							<input type="radio" name="example_accordion" id="doc_section" class="accordion__input">
 							<label for="doc_section" class="accordion__label">Dissolved Organic Carbon (DOC) 	</label>
 							<div class="accordion__content">
-								<p>Dissolved Organic Carbon</p><br>
-								<p>
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam sit reiciendis, ipsam quaerat,
-									aperiam perspiciatis ad ullam architecto impedit natus illo nostrum molestias voluptas earum a
-									voluptatibus fugiat fuga facere!
-								</p>
+								<h3>Please select a date - </h3><br>
+								<select id="doc_date_select" onfocus='this.size=8;' onblur='this.size=1;'>
+									<option value="none" selected disabled hidden>
+										Select
+								</option></select>
 							</div>
 						</div>
 					</div> <!-- Accordion STUFF End-->

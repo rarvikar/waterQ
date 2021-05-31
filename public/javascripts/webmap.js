@@ -17877,14 +17877,41 @@ const GeoRasterLayer = require("georaster-layer-for-leaflet");
 const chroma = require("chroma-js");
 const geoblaze = require("geoblaze");
 
+// Array for Date Select Menu
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+var tss_select_div = document.getElementById("tss_date_select");
+var doc_select_div = document.getElementById("doc_date_select");
 
-// Adds the basemap tiles to your web map
+// Populate month-select menus
+add_month_values(months, tss_select_div);
+add_month_values(months, doc_select_div);
+
+// A function to populate month-select menus from 
+function add_month_values(months, div_id) {
+	for(x=0; x < months.length; x++) {
+		var opt = months[x];
+		var el = document.createElement("option");
+		el.textContent = opt;
+		el.value = opt;
+		div_id.appendChild(el);
+	}
+}
+
+// Add the basemap tiles to your web map
 const map = L.map('map', { zoomControl: false }).setView([26.4708, 80.3764], 15);
 
 //document.getElementById('headerdiv').style.border = "solid #ecf0f1"; // Add border to the 'headerdiv' div
 //document.getElementById('map').style.border = "solid #ecf0f1"; // Add border to the 'map' div
 document.getElementById('map').style.cursor = 'crosshair' //Change default cursor
 
+// Create and add a 'LayerGroup' to the map
+const layerGroup = L.layerGroup().addTo(map);
+var active_layer = "";
+var active_month = "";
+var tiffArray = [];
+var layerArray = [];
+
+// Add ESRI Satellite TileLayer to the map
 mapLink = '<a href="http://www.esri.com/">Esri</a>';
 wholink = 'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
 var esriLayer = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -17940,16 +17967,21 @@ const urls = {
 	]
 }
 
+//console.log(urls.images.find(e => e.type === "tss" & e.month === "January").url);
+//console.log(urls.images.filter(e => e.type === "tss").find(e => e.month === "February").url);
+
 const urlArray = ["https://geobucket2021.s3.ap-south-1.amazonaws.com/jan_wq_clean_crs.tif",
 									"https://geobucket2021.s3.ap-south-1.amazonaws.com/feb_wq_clean_crs.tif",
 									"https://geobucket2021.s3.ap-south-1.amazonaws.com/doc_jan_clean_crs.tif",
-									"https://geobucket2021.s3.ap-south-1.amazonaws.com/doc_feb_clean_crs.tif"]
+									"https://geobucket2021.s3.ap-south-1.amazonaws.com/doc_feb_clean_crs.tif"];
 
-const layerArray = [];
+// First fetch all layers from AWS and then add January TSS layer to the map after a delay of 3 seconds
 fetchLayers(urlArray);
-
-//console.log(urls.images.find(e => e.type === "tss" & e.month === "January").url);
-//console.log(urls.images.filter(e => e.type === "tss").find(e => e.month === "February").url);
+setTimeout(() => {  layerGroup.addLayer(layerArray[0]); 
+										console.log("Added TSS Layer for January"); 
+										active_layer = "Total Suspended Solids"; 
+										active_month = "January"; 
+										info.update(); }, 3000);
 
 // Fetch the raster file across the network and print it to the console. The simplest use of fetch() takes one argument — the path to the resource you want to fetch — and returns a Promise containing the response (a HTTP Response object).
 function fetchLayers(urls) {
@@ -17960,8 +17992,9 @@ function fetchLayers(urls) {
 		.then(response => response.arrayBuffer())
 		.then(arrayBuffer => {
 			parseGeoraster(arrayBuffer).then(georaster => {
-				// console.log("georaster:", georaster);
-
+				//console.log("georaster:", georaster);
+				tiffArray.push(georaster);
+				console.log("Added a tiff to tiffArray." + "Total layers in tiffArray = " + tiffArray.length);
 				const min = georaster.mins[0];
 				const max = georaster.maxs[0];
 				const range = georaster.ranges[0];
@@ -17988,7 +18021,7 @@ function fetchLayers(urls) {
 						resolution: 256 // optional parameter for adjusting display resolution
 				});
 				//console.log("layer:", layer);
-				layer.addTo(map);
+				//layer.addTo(map);
 				layerArray.push(layer);
 				console.log("Added a layer to array." + "Total layers in array = " + layerArray.length);							
 			});
@@ -17996,46 +18029,126 @@ function fetchLayers(urls) {
 	}
 }
 
+// Handle onchange events for month 
+tss_select_div.onchange = function() {addTssLayer(this.value)};
+doc_select_div.onchange = function() {addDocLayer(this.value)};
+
+function addTssLayer(v) {
+	switch(v) {
+		case "January": case "March": case "May": case "July":  case "September": case "November":
+			layerGroup.clearLayers();
+			layerGroup.addLayer(layerArray[0]);
+			active_layer = "Total Suspended Solids";
+			active_month = "January";
+			info.update();
+			tss_select_div.size = 1;
+			tss_select_div.blur();
+			break;
+		case "February": case "April": case "June": case "August": case "October": case "December":
+			layerGroup.clearLayers();
+			layerGroup.addLayer(layerArray[1]);
+			active_layer = "Total Suspended Solids";
+			active_month = "February";
+			info.update();
+			tss_select_div.size = 1;
+			tss_select_div.blur();
+			break;
+	}
+}
+
+function addDocLayer(v) {
+	switch(v) {
+		case "January": case "March": case "May": case "July":  case "September": case "November":
+			layerGroup.clearLayers();
+			layerGroup.addLayer(layerArray[2]);
+			active_layer = "Dissolved Organic Carbon";
+			active_month = "January";
+			info.update();
+			doc_select_div.size = 1;
+			doc_select_div.blur();
+			break;
+		case "February": case "April": case "June": case "August": case "October": case "December":
+			layerGroup.clearLayers();
+			layerGroup.addLayer(layerArray[3]);
+			active_layer = "Dissolved Organic Carbon";
+			active_month = "February";
+			info.update();
+			doc_select_div.size = 1;
+			doc_select_div.blur();
+			break;
+	}
+}
+
 // Get no. of layers in map
 // let l = 0;
 // map.eachLayer(function(){ l += 1; });
 // console.log('Map has', l, 'layers.');
+
+
+// A function that checks the current layer in the L.LayerGroup and returns the corresponding TIFF
+function getcurrentLayer() {
+	var curr_lg_array = layerGroup.getLayers();
+	// Since the only element loaded in LayerGroup is the current layer, 
+	// get it from the Array as Array[0] that was returned by getLayers(). 
+	var curr_lg_lyr = curr_lg_array[0];
+	switch(curr_lg_lyr) {
+		case layerArray[0]:
+			console.log("Layer Loaded: January TSS");
+			return tiffArray[0];
+			break;
+		case layerArray[1]:
+			console.log("Layer Loaded: February TSS");
+			return tiffArray[1];
+			break;
+		case layerArray[2]:
+			console.log("Layer Loaded: January DOC");
+			return tiffArray[2];
+			break;
+		case layerArray[3]:
+			console.log("Layer Loaded: February DOC");
+			return tiffArray[3];
+			break;
+	}
+	// if (curr_lg_lyr === layerArray[0]) {
+	// 	console.log("Layer Loaded: January TSS");
+	// 	return tiffArray[0];
+	// } else if (curr_lg_lyr === layerArray[1]) {
+	// 	console.log("Layer Loaded: February TSS");
+	// 	return tiffArray[1];
+	// }
+}
+
+// A bitwise OR operator can be used to truncate floating point figures (really fast) 
+// It works for positives as well as negatives:
+function float2int (value) {
+	return value | 0;
+} 
+
+// Display raster value at lnglat using GeoBlaze and convert raster-value from float to int
+map.on('click', function(evt) {
+	const latlng = map.mouseEventToLatLng(evt.originalEvent);
+	console.log(latlng);
+	var loadedTiff = getcurrentLayer();
+	info.update(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
+	console.log(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
+});		
 		
 
-			// Uncomment to force map to fit bounds to the raster's bounds
-			//map.fitBounds(layer.getBounds());
+// Info Control Div code
+const info = L.control();
 
-			// A bitwise OR operator can be used to truncate floating point figures (really fast) 
-			// and it works for positives as well as negatives:
-			// function float2int (value) {
-			// 	return value | 0;
-			// } 
+info.onAdd = function (map) {
+	this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+	this.update();
+	return this._div;
+};
 
-			// // Display raster value at lnglat using GeoBlaze and convert type from float to int
-			// map.on('click', function(evt) {
-			// 	const latlng = map.mouseEventToLatLng(evt.originalEvent);
-			// 	console.log(latlng);
-			// 	info.update(float2int(geoblaze.identify(georaster, [latlng.lng, latlng.lat])));
-			// });
-		
-		
-		
+// method that we will use to update the control based on feature properties passed
+info.update = function (props) {
+	console.log("Running INFO DIV update", props);
+	this._div.innerHTML = '<br><h2>Summary</h2><br>' + '<hr>' + '<br>' + '<h3>Current Parameter :</h3>' + active_layer + '<br>' + '<br><h3>Month :</h3>' + active_month + '<br>' + (props ? '<br>' + '<h3>Value :</h3>' + '<ins>' + props + ' mg/L' + '</ins>' + '<br />' : '<br><strong><i>Click on a point to display value</i></strong>');
+};
 
-// // Info Control Div code
-// const info = L.control();
-
-// info.onAdd = function (map) {
-// 	this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-// 	this.update();
-// 	return this._div;
-// };
-
-// // method that we will use to update the control based on feature properties passed
-// info.update = function (props) {
-// 	this._div.innerHTML = "<br><h2></b>TSS and DOC Map" + "<h3>Layer Loaded: TSS</h3>" + (props ? '<b>' + props + 
-// 	'</b><br />' : 'Click on a point to display value');
-// };
-
-// // Add the Info Control to Map
-// info.addTo(map);
+// Add the Info Control to Map
+info.addTo(map);
 },{"chroma-js":1,"geoblaze":2,"georaster":4,"georaster-layer-for-leaflet":3,"leaflet":6,"leaflet-sidebar-v2":5}]},{},[7]);

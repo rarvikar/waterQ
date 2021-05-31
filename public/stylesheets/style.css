@@ -22,19 +22,25 @@ body {
 
 .info { 
   width:250px;
-	height:100px;
+	height: 240px;
   padding: 6px 8px; 
-  font: 14px/16px "Montserrat", Arial, Helvetica, sans-serif; 
-  background: white; 
-  background: rgba(255,255,255,0.8); 
+  font: 14px/16px "Montserrat", Arial, Helvetica, sans-serif;
+  color: #24252A;
+  /* background: white;  */
+  /* background: rgba(255,255,255,0.8);  */
+  background: rgba(236,240,241,0.85);
   box-shadow: 0 0 15px rgba(0,0,0,0.2); 
-  border-radius: 5px; 
+  /* border-radius: 5px; */
 }
 
 .info h2 { 
-  margin: 0 0 5px; 
-  color: #777;
+  margin: 0 0 5px;
+  text-align: center;
+}
 
+.info h3 { 
+  margin: 0 0 5px; 
+  /* color: #ecf0f1; */
 }
 
 /* Top Navbar Style */
