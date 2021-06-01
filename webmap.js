@@ -6,6 +6,7 @@ const GeoRasterLayer = require("georaster-layer-for-leaflet");
 const chroma = require("chroma-js");
 const geoblaze = require("geoblaze");
 const { names } = require("debug");
+require("leaflet-basemaps");
 
 // Array for Date Select Menu
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -63,19 +64,65 @@ var active_month = "";
 var tiffArray = [];
 var layerArray = [];
 
-// Add ESRI Satellite TileLayer to the map
+// Add BaseMaps using Leaflet-basemaps library
 mapLink = '<a href="http://www.esri.com/">Esri</a>';
 wholink = 'i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
-var esriLayer = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-		//attribution: '&copy; '+mapLink+', '+wholink,
-		maxZoom: 20,
-}).addTo(map);
 
-var cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-	//attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-	subdomains: 'abcd',
-	maxZoom: 20
-});
+var basemaps = [ 
+		L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+			attribution: '&copy; '+mapLink+', '+wholink,
+			maxZoom: 20,
+			minZoom: 0, 
+			label: 'ESRI World'
+		}),
+		L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+			subdomains: 'abcd',
+			maxZoom: 20,
+			minZoom: 0,
+			label: 'Carto CDN'
+		}),
+		L.tileLayer('//{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+			attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+			subdomains: 'abcd',
+			maxZoom: 20,
+			minZoom: 0,
+			label: 'Toner Lite'
+		}),
+		// L.tileLayer('//{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+		// 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+		// 	subdomains: 'abcd',
+		// 	maxZoom: 20,
+		// 	minZoom: 0,
+		// 	label: 'Toner'
+		// }),
+		L.tileLayer('//{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png', {
+			attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+			subdomains: 'abcd',
+			maxZoom: 16,
+			minZoom: 1,
+			label: 'Watercolor'
+		}),
+		L.tileLayer('http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+			maxZoom: 20,
+			minZoom: 0,
+			label: 'OSM DE'
+		}),
+		L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18,
+			minZoom: 0,
+			label: 'OSM B/W'
+		}),            
+];
+
+map.addControl(L.control.basemaps({
+		basemaps: basemaps,
+		tileX: 0,  // tile X coordinate
+		tileY: 0,  // tile Y coordinate
+		tileZ: 1   // tile zoom level
+}));
 
 // Add the sidebar object
 var sidebar = L.control.sidebar({ container: 'sidebar',autopan: true })
@@ -153,7 +200,7 @@ function fetchLayers(urls) {
 				const range = georaster.ranges[0];
 
 				// console.log(chroma.brewer);
-				const scale = chroma.scale("accent").mode("lab");
+				const scale = chroma.scale("viridis").mode("lab");
 
 				const layer = new GeoRasterLayer({
 						georaster: georaster,
