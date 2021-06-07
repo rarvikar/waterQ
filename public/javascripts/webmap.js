@@ -18430,13 +18430,16 @@ require("leaflet-basemaps");
 
 // Array for Date Select Menu
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+// Get the DIVs for TSS and DOC select menus.
 var tss_select_div = document.getElementById("tss_date_select");
 var doc_select_div = document.getElementById("doc_date_select");
 
 // Array for Color Scale select menu
 const color_scales = ["Accent", "BrBG", "Greys", "Pastel1", "Pastel2", "PiYG", "Dark2", "RdYlBu", "RdYlGn", "Spectral", "Set1", "Set2", "Set3", "YlGnBu", "Viridis", "Paired", "PuBuGn", "YlOrRd"];
-console.log(color_scales);
+// console.log(color_scales);
 
+// Get the DIVs for TSS and DOC select menus.
 var tss_color_div = document.getElementById("tss_color_select");
 var doc_color_div = document.getElementById("doc_color_select");
 
@@ -18449,7 +18452,7 @@ add_month_values(months, doc_select_div);
 add_color_values(color_scales, tss_color_div);
 add_color_values(color_scales, doc_color_div);
 
-// A function to populate month-select menus from 
+// A function to populate month-select menus from the 'months' array.
 function add_month_values(months, div_id) {
 	for(x=0; x < months.length; x++) {
 		var opt = months[x];
@@ -18460,6 +18463,7 @@ function add_month_values(months, div_id) {
 	}
 }
 
+// A function to populate the Color Scale menu from the 'color_scales' array. 
 function add_color_values(color_scales, clr_div_id) {
 	for(cs=0; cs < color_scales.length; cs++) {
 		var opts = color_scales[cs];
@@ -18469,6 +18473,10 @@ function add_color_values(color_scales, clr_div_id) {
 		clr_div_id.appendChild(els);
 	}
 }
+
+// Get the DIVs for the opacity sliders
+var tss_opacity_div = document.getElementById("tss_slide");
+var doc_opacity_div = document.getElementById("doc_slide");
 
 // Add the basemap tiles to your web map
 const map = L.map('map', { zoomControl: false }).setView([26.4708, 80.3764], 15);
@@ -18531,7 +18539,7 @@ var basemaps = [
 		}),
 		L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
 			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 18,
+      maxZoom: 22,
 			minZoom: 0,
 			label: 'OSM B/W'
 		}),            
@@ -18545,7 +18553,7 @@ map.addControl(L.control.basemaps({
 }));
 
 // Add the sidebar object
-var sidebar = L.control.sidebar({ container: 'sidebar',autopan: true })
+var sidebar = L.control.sidebar({ container: 'sidebar', autopan: true })
             .addTo(map)
             .open('home');
 
@@ -18559,7 +18567,7 @@ var sidebar = L.control.sidebar({ container: 'sidebar',autopan: true })
 //     'Uttar Pradesh<br><br>' + 
 // 		'Tel: 416-9795000 Ext. 5192'
 // 	);//.openPopup();
-	
+
 const urls = {
 	"description": "A collection of URLs of GeoTIFF stored on S3",
 	"images": [ 
@@ -18600,9 +18608,12 @@ setTimeout(() => {  layerGroup.addLayer(layerArray[0]);
 										console.log("Added TSS Layer for January"); 
 										active_layer = "Total Suspended Solids"; 
 										active_month = "January"; 
-										info.update(); }, 3000);
+										info.update(); }, 2750);
 
-// Fetch the raster file across the network and print it to the console. The simplest use of fetch() takes one argument — the path to the resource you want to fetch — and returns a Promise containing the response (a HTTP Response object).
+
+// Fetch the raster files across the network using URLs and store them into the an array of 'georasters' called 'tiffArray'. The simplest use of fetch() takes one argument — the path to the resource you want to fetch -- and returns a Promise containing the response (a HTTP Response object). We convert the response into an arrayBuffer object and pass it to the parseGeoraster() method to create a 'georaster' object that is added to the 'tiffArray'. We then create a new GeoRasterLayer using the 'georaster' object and also define a Color Scale. The new GeoRasterLayer is added to the 'layerArray' for GeoRasterLayers. We end up with 2 arrays - A 'tiffLayer' array for storing all 'georaster' objects and a 'layerArray' array fr storing all 'GeoRasterLayers'. 
+
+// PLEASE NOTE : Currently we fetch all the TIFFs serially, one after the other, using a for loop within a single service worker running in the background. This logic needs to be changed to implement parallel fetching (and parsing) of all TIFFs.
 function fetchLayers(urls) {
 	console.log("Starting Layer fetch");
 	//console.log(chroma.brewer);
@@ -18621,24 +18632,19 @@ function fetchLayers(urls) {
 
 				// console.log(chroma.brewer);
 				const scale = chroma.scale("viridis").mode("lab");
-
 				const layer = new GeoRasterLayer({
 						georaster: georaster,
-						opacity: 0.9,
+						opacity: 1,
 						pixelValuesToColorFn: function(pixelValues) {
 							const pixelValue = pixelValues[0]; // there's just one band in this raster
-
 							// if there's zero value, don't return a color
 							if (pixelValue === 0) return null;
-
 							// scale to 0 - 1 used by chroma
 							const scaledPixelValue = (pixelValue - min) / range;
-
 							const color = scale(scaledPixelValue).hex();
-
 							return color;
 						},  
-						resolution: 256 // optional parameter for adjusting display resolution
+						resolution: 512 // optional parameter for adjusting display resolution
 				});
 				//console.log("layer:", layer);
 				//layer.addTo(map);
@@ -18649,19 +18655,24 @@ function fetchLayers(urls) {
 	}
 }
 
-// Handle onchange events for month select menu
+// Handle onchange events for month select menu using the 'addTssLayerOnDate' and 'addDocLayerOnDate' functions.
 tss_select_div.onchange = function() {addTssLayerOnDate(this.value)};
 doc_select_div.onchange = function() {addDocLayerOnDate(this.value)};
 
-// Handle onchange events for Color-Scale select menu
+// Handle onchange events for Color-Scale select menu using the 'changeColor' function.
 tss_color_div.onchange = function() {changeColor(this.value)};
 doc_color_div.onchange = function() {changeColor(this.value)};
+
+// Handle onchange event for Opacity Slider using the 'changeOpacity' function.
+tss_opacity_div.onchange = function() {changeOpacity(this.value)};
+doc_opacity_div.onchange = function() {changeOpacity(this.value)};
 
 function addTssLayerOnDate(v) {
 	switch(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[0]);
+			changeOpacity(document.getElementById("tss_slide").value);
 			active_layer = "Total Suspended Solids";
 			active_month = "January";
 			info.update();
@@ -18671,6 +18682,7 @@ function addTssLayerOnDate(v) {
 		case "February": case "April": case "June": case "August": case "October": case "December":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[1]);
+			changeOpacity(document.getElementById("tss_slide").value);
 			active_layer = "Total Suspended Solids";
 			active_month = "February";
 			info.update();
@@ -18685,6 +18697,7 @@ function addDocLayerOnDate(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[2]);
+			changeOpacity(document.getElementById("doc_slide").value);
 			active_layer = "Dissolved Organic Carbon";
 			active_month = "January";
 			info.update();
@@ -18694,6 +18707,7 @@ function addDocLayerOnDate(v) {
 		case "February": case "April": case "June": case "August": case "October": case "December":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[3]);
+			changeOpacity(document.getElementById("doc_slide").value);
 			active_layer = "Dissolved Organic Carbon";
 			active_month = "February";
 			info.update();
@@ -18713,7 +18727,7 @@ function changeColor(v) {
 
 	const layer = new GeoRasterLayer({
 		georaster: currentTiff,
-		opacity: 0.9,
+		opacity: 1,
 		pixelValuesToColorFn: function(pixelValues) {
 			const pixelValue = pixelValues[0]; // there's just one band in this raster
 			// if there's zero value, don't return a color
@@ -18723,7 +18737,7 @@ function changeColor(v) {
 			const color = scale(scaledPixelValue).hex();
 			return color;
 		},  
-		resolution: 256 // optional parameter for adjusting display resolution
+		resolution: 512 // optional parameter for adjusting display resolution
 	});
 	
 	layerGroup.clearLayers();
@@ -18731,18 +18745,35 @@ function changeColor(v) {
 	if (active_layer === "Total Suspended Solids" & active_month === "January") {
 		layerArray.splice(0,1,layer);
 		layerGroup.addLayer(layerArray[0]);
+		changeOpacity(document.getElementById("tss_slide").value);
+		tss_color_div.size = 1;
+		tss_color_div.blur();
 	} else if (active_layer === "Total Suspended Solids" & active_month === "February") {
 			layerArray.splice(1,1,layer);
 			layerGroup.addLayer(layerArray[1]);
+			changeOpacity(document.getElementById("tss_slide").value);
+			tss_color_div.size = 1;
+			tss_color_div.blur();
 	} else if (active_layer === "Dissolved Organic Carbon" & active_month === "January") {
 			layerArray.splice(2,1,layer);
 			layerGroup.addLayer(layerArray[2]);
+			changeOpacity(document.getElementById("doc_slide").value);
+			doc_color_div.size = 1;
+			doc_color_div.blur();
 	} else {
 			layerArray.splice(3,1,layer);
 			layerGroup.addLayer(layerArray[3]);
+			changeOpacity(document.getElementById("doc_slide").value);
+			doc_color_div.size = 1;
+			doc_color_div.blur();
 	}
 }
 
+function changeOpacity(v) {
+	layerGroup.eachLayer(function(layer){
+		layer.setOpacity(v);
+	});
+}
 // Get no. of layers in map
 // let l = 0;
 // map.eachLayer(function(){ l += 1; });
@@ -18757,19 +18788,19 @@ function getCurrentLayer() {
 	var curr_lg_lyr = curr_lg_array[0];
 	switch(curr_lg_lyr) {
 		case layerArray[0]:
-			console.log("Layer Loaded: January TSS");
+			console.log("getCurrentLayer - Layer Loaded: January TSS. Fetching the corresponding georaster object.");
 			return tiffArray[0];
 			break;
 		case layerArray[1]:
-			console.log("Layer Loaded: February TSS");
+			console.log("getCurrentLayer - Layer Loaded: February TSS. Fetching the corresponding georaster object.");
 			return tiffArray[1];
 			break;
 		case layerArray[2]:
-			console.log("Layer Loaded: January DOC");
+			console.log("getCurrentLayer - Layer Loaded: January DOC. Fetching the corresponding georaster object.");
 			return tiffArray[2];
 			break;
 		case layerArray[3]:
-			console.log("Layer Loaded: February DOC");
+			console.log("getCurrentLayer - Layer Loaded: February DOC. Fetching the corresponding georaster object.");
 			return tiffArray[3];
 			break;
 	}
@@ -18788,13 +18819,13 @@ function float2int (value) {
 	return value | 0;
 } 
 
-// Display raster value at lnglat using GeoBlaze and convert raster-value from float to int
+// Display raster value at lnglat using GeoBlaze and convert raster-value from float to int. From the function, call the getCurrentLayer() method to retrieve the 'georaster' object (from 'tiffArray') for the current layer inside the 'L.LayerGroup'.
 map.on('click', function(evt) {
 	const latlng = map.mouseEventToLatLng(evt.originalEvent);
-	console.log(latlng);
+	//console.log(latlng);
 	var loadedTiff = getCurrentLayer();
 	info.update(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
-	console.log(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
+	//console.log(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
 });		
 		
 
@@ -18809,7 +18840,7 @@ info.onAdd = function (map) {
 
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
-	console.log("Running INFO DIV update", props);
+	//console.log("Running INFO DIV update", props);
 	this._div.innerHTML = '<br><h2>SUMMARY</h2><br>' + '<hr>' + '<br>' + '<h3>Selected Parameter :</h3>' + active_layer + '<br>' + '<br><h3>Month :</h3>' + active_month + '<br>' + (props ? '<br>' + '<hr>' + '<br>' + '<h3>Value :</h3>' + '<ins>' + props + ' mg/L' + '</ins>' : '<br><p style="color: rgba(0,136,169,1)"><b><i>Click on a point to display value</b></i></p>');
 };
 
