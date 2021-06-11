@@ -9,6 +9,7 @@ const geoblaze = require("geoblaze");
 require("leaflet-basemaps");
 require("@ansur/leaflet-pulse-icon");
 require('./public/javascripts/leaflet-slider');
+require('chart.js');
 
 // Array for Date Select Menu
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -57,7 +58,7 @@ function add_color_values(color_scales, clr_div_id) {
 }
 
 // Add the basemap tiles to your web map
-const map = L.map('map', { zoomControl: false }).setView([26.4708, 80.3764], 14);
+const map = L.map('map', { zoomControl: false }).setView([26.4708, 80.3764], 13);
 
 //document.getElementById('headerdiv').style.border = "solid #ecf0f1"; // Add border to the 'headerdiv' div
 //document.getElementById('map').style.border = "solid #ecf0f1"; // Add border to the 'map' div
@@ -82,15 +83,6 @@ var basemaps = [
 			zoomOffset: -1,
 			accessToken: 'pk.eyJ1IjoicmFodWxhODMiLCJhIjoiY2tvbGwxYXZvMHR0cTJ2bzBpemx5MzNtZSJ9._ipl4bv2im9waeVlBY0Htw',
 			label: 'Mapbox Hybrid'
-			}),
-			L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-			attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
-			tileSize: 512,
-			maxZoom: 18,
-			zoomOffset: -1,
-			id: 'mapbox/streets-v11',
-			accessToken: 'pk.eyJ1IjoicmFodWxhODMiLCJhIjoiY2tvbGwxYXZvMHR0cTJ2bzBpemx5MzNtZSJ9._ipl4bv2im9waeVlBY0Htw',
-			label: 'Mapbox Streets'
 			}),
 			L.tileLayer(' https://api.mapbox.com/styles/v1/rahula83/ckppo89lb0fsr17mnhcm9liwv/tiles/{z}/{x}/{y}@2x?access_token={accessToken}', {
 			attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
@@ -119,6 +111,15 @@ var basemaps = [
 			maxZoom: 20,
 			minZoom: 0,
 			label: 'OSM DE'
+		}),
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+			attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+			tileSize: 512,
+			maxZoom: 18,
+			zoomOffset: -1,
+			id: 'mapbox/streets-v11',
+			accessToken: 'pk.eyJ1IjoicmFodWxhODMiLCJhIjoiY2tvbGwxYXZvMHR0cTJ2bzBpemx5MzNtZSJ9._ipl4bv2im9waeVlBY0Htw',
+			label: 'Mapbox Streets'
 		}),
 		// L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
 		// 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -429,8 +430,13 @@ function float2int (value) {
 // Display raster value at lnglat using GeoBlaze and convert raster-value from float to int. From the function, call the getCurrentLayer() method to retrieve the 'georaster' object (from 'tiffArray') for the current layer inside the 'L.LayerGroup'.
 map.on('click', function(evt) {
 	const latlng = map.mouseEventToLatLng(evt.originalEvent);
-	console.log(latlng);
+	//console.log(latlng);
 	loadedTiff = getCurrentLayer();
+	// var geometry = [[[26.42862660007021, 80.41457033104963],[26.42862660007021, 80.41855518914791],[26.426418197850087, 80.41868387490261],[26.426610234505137, 80.41649621707309]]];
+	//console.log("Median" + geoblaze.median(loadedTiff, geometry));
+	//console.log("Mean" + geoblaze.mean(loadedTiff, geometry));
+	//console.log("Mode" + geoblaze.mode(loadedTiff, geometry));
+	//console.log("Histogram" + geoblaze.histogram(loadedTiff, geometry));
 	info.update(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
 	drawMarker(latlng);
 	//console.log(float2int(geoblaze.identify(loadedTiff, [latlng.lng, latlng.lat])));
@@ -449,7 +455,7 @@ info.onAdd = function (map) {
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
 	//console.log("Running INFO DIV update", props);
-	this._div.innerHTML = '<br><h3>SUMMARY</h3><br>' + '<hr>' + '<br>' + '<h4>Selected Parameter :</h4>' + '<span style="color: #24252A">'+active_layer+'</span>' + '<br>' + '<br><h4>Month :</h4>' + '<span style="color: #24252A">'+active_month+'</span>' + '<br>' + (props ? '<br>' + '<hr>' + '<br>' + '<h4>Value :</h4>' + '<ins>' + props + ' mg/L' + '</ins>' : '<br>' + '<hr>' + '<br><p style="color:rgba(0,136,169,1)"><b><i>Click on a point to display value</i></b></p>');
+	this._div.innerHTML = '<br><h3>SUMMARY</h3><br>' + '<hr>' + '<br>' + '<h4>Selected Parameter :</h4>' + '<span style="color: #24252A">'+active_layer+'</span>' + '<br>' + '<br><h4>Month :</h4>' + '<span style="color: #24252A">'+active_month+'</span>' + '<br>' + (props ? '<br>' + '<hr>' + '<br>' + '<h4>Value :</h4>' + '<ins>' + props + ' mg/L' + '</ins>' : '<br>' + '<hr>' + '<br><span style="color:rgba(0,136,169,1)"><b><i>Click on the raster to display value</i></b></span>');
 };
 
 // Add the Info Control to Map
@@ -472,3 +478,99 @@ slider = L.control.slider(function(value)
 		syncSlider: true,
 		id: 'slider'
 }).addTo(map);
+
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: months,
+        datasets: [{
+            label: 'Mean TSS value (mg/L)',
+            data: [120, 145, 133, 148, 152, 149, 130, 155, 143, 158, 162, 159],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+								'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+								'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+var ctx2 = document.getElementById('myChart2').getContext('2d');
+var myChart2 = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: months,
+        datasets: [{
+            label: 'Mean DOC value (mg/L)',
+            data: [60, 73, 61, 74, 76, 80, 65, 78, 71, 79, 64, 80].reverse(),
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+								'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+								'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});

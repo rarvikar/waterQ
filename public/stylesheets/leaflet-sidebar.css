@@ -25,14 +25,14 @@
       max-width: 390px; } }
   @media (min-width: 1200px) {
     .leaflet-sidebar {
-      width: 400px;
+      width: 430px;
       max-width: 460px; } }
 
 .leaflet-sidebar-left {
   left: 0; }
   @media (min-width: 768px) {
     .leaflet-sidebar-left {
-      left: 10px; } }
+      left: 0px; } }
 
 .leaflet-sidebar-right {
   right: 0; }
@@ -135,7 +135,7 @@
   font-size: 14.4pt;
   color: #24252A;
   background-color: rgba(236, 240, 241, 1); 
-  text-align: center; 
+  text-align: start; 
   border-bottom: double #24252A; }
   .leaflet-sidebar-right .leaflet-sidebar-header {
     padding-left: 40px; }

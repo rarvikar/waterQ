@@ -120,7 +120,8 @@ button:hover {
 /* Accordion Styles */
 
 .accordion {
-  max-width: 316px;
+  /* max-width: 316px; */
+  max-width: 345px;
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); */
   border:2px black solid;
   border-radius: 5px;

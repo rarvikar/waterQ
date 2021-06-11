@@ -47,7 +47,7 @@
 			<div class="leaflet-sidebar-content">
 				<div class="leaflet-sidebar-pane" id="home">
 					<h1 class="leaflet-sidebar-header">
-						Select a Parameter 
+						Select Parameter 
 						<span class="leaflet-sidebar-close"><i class="fas fa-angle-left"></i></span>
 					</h1><br/>
 					<!--h3>TSS and DOC Detection</h3><br><hr><br-->
@@ -63,7 +63,10 @@
 								<h3>Choose Colour Scale :</h3><br>
 								<select id="tss_color_select" onfocus='this.size=8;' onblur='this.size=1;'>
 									<option value="none" selected disabled hidden>Viridis</option>
-								</select><br><br>
+								</select><br><br><br><hr><br>
+								<!--h3>Mean TSS :</h3><br-->
+								<div><canvas id="myChart" width="350" height="300"></canvas></div>
+								<!--div><canvas id="myChart2" width="350" height="300"></canvas></div-->
 							</div>
 						</div>
 						<div>
@@ -77,7 +80,8 @@
 								<h3>Choose Colour Scale :</h3><br>
 								<select id="doc_color_select" onfocus='this.size=8;' onblur='this.size=1;'>
 									<option value="none" selected disabled hidden>Viridis</option>
-								</select><br><br>
+								</select><br><br><br><hr><br>
+								<div><canvas id="myChart2" width="350" height="300"></canvas></div>
 							</div>
 						</div>
 					</div> <!-- Accordion STUFF End-->
