@@ -25,7 +25,7 @@
       max-width: 390px; } }
   @media (min-width: 1200px) {
     .leaflet-sidebar {
-      width: 460px;
+      width: 400px;
       max-width: 460px; } }
 
 .leaflet-sidebar-left {
@@ -156,7 +156,7 @@
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65); }
   @media (min-width: 768px) {
     .leaflet-sidebar {
-      border-radius: 4px; }
+      border-radius: 5px; }
       .leaflet-sidebar.leaflet-touch {
         border: 2px solid rgba(0, 0, 0, 0.2); } }
 
