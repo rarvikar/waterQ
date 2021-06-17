@@ -31259,10 +31259,10 @@ const urls = {
 //console.log(urls.images.find(e => e.type === "tss" & e.month === "January").url);
 //console.log(urls.images.filter(e => e.type === "tss").find(e => e.month === "February").url);
 
-const urlArray = ["https://geobucket2021.s3.ap-south-1.amazonaws.com/jan_wq_clean_crs.tif",
-									"https://geobucket2021.s3.ap-south-1.amazonaws.com/feb_wq_clean_crs.tif",
-									"https://geobucket2021.s3.ap-south-1.amazonaws.com/doc_jan_clean_crs.tif",
-									"https://geobucket2021.s3.ap-south-1.amazonaws.com/doc_feb_clean_crs.tif"];
+const urlArray = ["https://mygeobucket2021.s3.ap-south-1.amazonaws.com/jan_wq_clean_crs.tif",
+									"https://mygeobucket2021.s3.ap-south-1.amazonaws.com/feb_wq_clean_crs.tif",
+									"https://mygeobucket2021.s3.ap-south-1.amazonaws.com/doc_jan_clean_crs.tif",
+									"https://mygeobucket2021.s3.ap-south-1.amazonaws.com/doc_feb_clean_crs.tif"];
 
 // First fetch all layers from AWS and then add January TSS layer to the map after a delay of 3 seconds
 fetchLayers(urlArray);
