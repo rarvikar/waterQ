@@ -14,6 +14,10 @@ body {
   /* font-size: 16px; */
 }
 
+/* .leaflet-top.leaflet-right .leaflet-control:nth-child(3) {
+  clear: none;
+} */
+
 br {
   line-height: 10px;
 }
@@ -29,7 +33,7 @@ hr {
 }
 
 .info { 
-  width: 195px;
+  width: 205px;
 	height: 215px;
   padding: 6px 8px; 
   font: 14px/16px "Montserrat", Arial, Helvetica, sans-serif;
@@ -50,6 +54,41 @@ hr {
 .info h4 { 
   margin: 0 0 5px; 
   /* color: #ecf0f1; */
+}
+
+#legend_select { 
+  width: 203px;
+	/* height: 36px; */
+  padding: 6px 8px;
+  font: 14px/16px "Montserrat", Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+  font-size:1.3em;
+  color: #24252A;
+  background: rgba(236,240,241,0.85);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.4);
+  border:2px black solid;
+  border-radius: 5px;
+  text-align: center;
+}
+
+#legend_select h3 { 
+  margin: 0 0 5px;
+  
+}
+
+#legend_select.widthHeight::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+#legend_select.style::-webkit-scrollbar-track {
+  border: rgb(180, 180, 180);
+  background-color: #b6b8be;
+}
+
+#legend_select.style::-webkit-scrollbar-thumb {
+  background-color: #505257;
+  border: 1px solid rgb(193, 193, 193);
 }
 
 /* Top Navbar Style */

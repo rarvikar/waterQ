@@ -31063,8 +31063,8 @@ const color_scales = ["Accent", "BrBG", "Greys", "Pastel1", "Pastel2", "PiYG", "
 // console.log(color_scales);
 
 // Get the DIVs for TSS and DOC select menus.
-var tss_color_div = document.getElementById("tss_color_select");
-var doc_color_div = document.getElementById("doc_color_select");
+
+//var doc_color_div = document.getElementById("doc_color_select");
 
 
 // Populate month-select menus
@@ -31072,8 +31072,8 @@ add_month_values(months, tss_select_div);
 add_month_values(months, doc_select_div);
 
 // Populate color-scale select menus
-add_color_values(color_scales, tss_color_div);
-add_color_values(color_scales, doc_color_div);
+//add_color_values(color_scales, tss_color_div);
+//add_color_values(color_scales, doc_color_div);
 
 // A function to populate month-select menus from the 'months' array.
 function add_month_values(months, div_id) {
@@ -31266,6 +31266,7 @@ const urlArray = ["https://mygeobucket2021.s3.ap-south-1.amazonaws.com/jan_wq_cl
 
 // First fetch all layers from AWS and then add January TSS layer to the map after a delay of 3 seconds
 fetchLayers(urlArray);
+
 setTimeout(() => {  layerGroup.addLayer(layerArray[0]); 
 										console.log("Added TSS Layer for January"); 
 										active_layer = "Total Suspended Solids"; 
@@ -31273,7 +31274,7 @@ setTimeout(() => {  layerGroup.addLayer(layerArray[0]);
 										info.update(); }, 3000);
 
 
-// Fetch the raster files across the network using URLs and store them into the an array of 'georasters' called 'tiffArray'. The simplest use of fetch() takes one argument — the path to the resource you want to fetch -- and returns a Promise containing the response (a HTTP Response object). We convert the response into an arrayBuffer object and pass it to the parseGeoraster() method to create a 'georaster' object that is added to the 'tiffArray'. We then create a new GeoRasterLayer using the 'georaster' object and also define a Color Scale. The new GeoRasterLayer is added to the 'layerArray' for GeoRasterLayers. We end up with 2 arrays - A 'tiffLayer' array for storing all 'georaster' objects and a 'layerArray' array for storing all 'GeoRasterLayers'. 
+// Fetch the raster files across the network using URLs and first store them into the an array of 'georasters' called 'tiffArray'. The simplest use of fetch() takes one argument — the path to the resource you want to fetch -- and returns a Promise containing the response (a HTTP Response object). We convert the response into an arrayBuffer object and pass it to the parseGeoraster() method to create a 'georaster' object that is added to the 'tiffArray'. We then create a new GeoRasterLayer using the 'georaster' object and also define a Color Scale. The new GeoRasterLayer is added to the 'layerArray' for GeoRasterLayers. We end up with 2 arrays - A 'tiffLayer' array for storing all 'georaster' objects and a 'layerArray' array for storing all 'GeoRasterLayers'. 
 
 // PLEASE NOTE : Currently we fetch all the TIFFs serially, one after the other, using a for loop within a single service worker running in the background. This logic needs to be changed to implement parallel fetching (and parsing) of all TIFFs.
 function fetchLayers(urls) {
@@ -31333,29 +31334,20 @@ doc_select_div.onchange = function() {
 	doc_select_div.blur();
 };
 
-// Handle onchange events for Color-Scale select menu using the 'changeColor' function.
-tss_color_div.onchange = function() {
-	changeColor(this.value);
-	tss_color_div.size = 1;
-	tss_color_div.blur();
-};
-doc_color_div.onchange = function() {
-	changeColor(this.value);
-	doc_color_div.size = 1;
-	doc_color_div.blur();
-};
 
 function addTssLayerOnDate(v) {
 	switch(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[0]);
+			changeColor(color_div.value);
 			changeOpacity(document.getElementById("slider").value);
 			active_month = "January";
 			break;
 		case "February": case "April": case "June": case "August": case "October": case "December":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[1]);
+			changeColor(color_div.value);
 			changeOpacity(document.getElementById("slider").value);
 			active_month = "February";			
 			break;
@@ -31367,6 +31359,7 @@ function addDocLayerOnDate(v) {
 		case "January": case "March": case "May": case "July":  case "September": case "November":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[2]);
+			changeColor(color_div.value);
 			changeOpacity(document.getElementById("slider").value);
 			active_month = "January";
 			info.update();
@@ -31374,6 +31367,7 @@ function addDocLayerOnDate(v) {
 		case "February": case "April": case "June": case "August": case "October": case "December":
 			layerGroup.clearLayers();
 			layerGroup.addLayer(layerArray[3]);
+			changeColor(color_div.value);
 			changeOpacity(document.getElementById("slider").value);
 			active_month = "February";
 			break;
@@ -31382,6 +31376,7 @@ function addDocLayerOnDate(v) {
 
 function changeColor(v) {
 	var currentTiff = getCurrentLayer();
+	console.log("Completed getLayers()");
 	const min = currentTiff.mins[0];
 	const max = currentTiff.maxs[0];
 	const range = currentTiff.ranges[0];
@@ -31404,6 +31399,7 @@ function changeColor(v) {
 	});
 	
 	layerGroup.clearLayers();
+	console.log("Cleared Layers");
 
 	if (active_layer === "Total Suspended Solids" & active_month === "January") {
 		layerArray.splice(0,1,layer);
@@ -31496,6 +31492,8 @@ info.onAdd = function (map) {
 info.update = function (props) {
 	//console.log("Running INFO DIV update", props);
 	this._div.innerHTML = '<br><h3>SUMMARY</h3><br>' + '<hr>' + '<br>' + '<h4>Selected Parameter :</h4>' + '<span style="color: #24252A">'+active_layer+'</span>' + '<br>' + '<br><h4>Month :</h4>' + '<span style="color: #24252A">'+active_month+'</span>' + '<br>' + (props ? '<br>' + '<hr>' + '<br>' + '<h4>Value :</h4>' + '<ins>' + props + ' mg/L' + '</ins>' : '<br>' + '<hr>' + '<br><span style="color:rgba(0,136,169,1)"><b><i>Click on the raster to display value</i></b></span>');
+	this._div.firstChild.onmousedown = this._div.firstChild.ondblclick = L.DomEvent.disableClickPropagation(this._div);
+	this._div.firstChild.onmousedown = this._div.firstChild.ondblclick = L.DomEvent.disableScrollPropagation(this._div);
 };
 
 // Add the Info Control to Map
@@ -31513,11 +31511,31 @@ slider = L.control.slider(function(value)
 		position: 'topright',
 		value: 1,
 		step:0.05,
-		size: '191px',
+		size: '201px',
 		orientation:'horizontal',
 		syncSlider: true,
 		id: 'slider'
 }).addTo(map);
+
+// Color Change dropdown stuff
+const legend = L.control();
+legend.onAdd = function (map) {
+	var color_div = L.DomUtil.create('div', 'legend');
+	color_div.innerHTML = '<select id="legend_select" class="style widthHeight" onfocus="this.size=8;" onblur="this.size=1;"><option value="Viridis" selected disabled hidden>COLOR SCALE</option><option>Accent</option><option>Greys</option><option>Pastel1</option><option>Pastel2</option><option>PiYG</option><option>Dark2</option><option>RdYlBu</option><option>RdYlGn</option><option>Spectral</option><option>Set1</option><option>Set2</option><option>Set3</option><option>YlGnBu</option><option>Viridis</option><option>Paired</option><option>PuBuGn</option><option>YlOrRd</option></select>';
+	color_div.firstChild.onmousedown = color_div.firstChild.ondblclick = L.DomEvent.disableClickPropagation(color_div);
+	color_div.firstChild.onmousedown = color_div.firstChild.ondblclick = L.DomEvent.disableScrollPropagation(color_div);
+	return color_div;
+};
+legend.addTo(map);
+
+var color_div = document.getElementById("legend_select");
+// Handle onchange events for Color-Scale select menu using the 'changeColor' function.
+color_div.onchange = function() {
+	console.log("color_div.onchange() - Value Changed to : " + color_div.value);
+	changeColor(this.value);
+	color_div.size = 1;
+	color_div.blur();
+};
 
 var ctx = document.getElementById('myChart').getContext('2d');
 var myChart = new Chart(ctx, {
